@@ -1,8 +1,11 @@
 # Features
 - Create React App
 - Configured TailwindCSS
+- routing App
 - Header
 - Login Form 
+- Form Validation 
+- useRef Hook
 
 ...
 - Login/Sign Up
