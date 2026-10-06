@@ -6,6 +6,9 @@
 - Login Form 
 - Form Validation 
 - useRef Hook
+- firebase setup 
+- deploying our app to produnction 
+- Create SignUp page for user Account 
 
 ...
 - Login/Sign Up

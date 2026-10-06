@@ -1,12 +1,32 @@
 import Header from "./Header";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { validationData } from "../utils/validationData";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const name = useRef(null);
+  const email = useRef(null);
+  const password = useRef(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const message = validationData(
+      isSignInForm ? "" : name.current.value,
+      email.current.value,
+      password.current.value
+    );
+
+    setErrorMessage(message);
+  };
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    setErrorMessage(null);
   };
+
   return (
     <div className="relative min-h-screen">
       {/* Background Image */}
@@ -19,49 +39,71 @@ const Login = () => {
       {/* Black Overlay */}
       <div className="absolute inset-0 bg-black/60"></div>
 
-      {/* Content */}
+      {/* Header */}
       <div className="relative z-10">
         <Header />
       </div>
 
-      <form className="w-3/12 absolute p-10 bg-black/70 my-36 mx-auto right-0 left-0 text-white bg-opacity-90 ">
+      {/* Login Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="w-3/12 absolute p-8 bg-black/70 my-32 mx-auto right-0 left-0 text-white bg-opacity-90"
+      >
         <h1 className="font-bold text-3xl py-4">
-          {" "}
           {isSignInForm ? "Sign In" : "Sign Up"}
         </h1>
 
-        {/* Only show the Full Name input field if it's not the sign-in form */}
+        {/* Full Name - Only for Sign Up */}
         {!isSignInForm && (
           <input
+            ref={name}
             type="text"
             placeholder="Full Name"
             className="p-3 my-4 bg-gray-700 rounded-lg outline-none w-full"
           />
         )}
 
+        {/* Email */}
         <input
-          type="text"
+          ref={email}
+          type="email"
           placeholder="Email Address"
           className="p-3 my-4 bg-gray-700 rounded-lg outline-none w-full"
         />
 
+        {/* Password */}
         <input
+          ref={password}
           type="password"
           placeholder="Password"
           className="p-3 my-4 bg-gray-700 rounded-lg outline-none w-full"
         />
 
+        {/* Error Message */}
+        <div>
+          {errorMessage && (
+            <p className="text-sm font-medium leading-5 text-red-500">
+              {errorMessage}
+            </p>
+          )}
+        </div>
+
+        {/* Submit Button */}
         <button
           type="submit"
-          className="bg-red-600 hover:bg-red-700 font-bold p-4 my-6 rounded-lg transition w-full "
+          className="bg-red-600 hover:bg-red-700 font-bold p-4 my-5 rounded-lg transition w-full"
         >
           {isSignInForm ? "Sign In" : "Sign Up"}
         </button>
 
-        <p className=" p-2 cursor-pointer" onClick={toggleSignInForm}>
+        {/* Toggle Sign In / Sign Up */}
+        <p
+          className="p-2 cursor-pointer"
+          onClick={toggleSignInForm}
+        >
           {isSignInForm
-            ? " New to Netflix? Sign Up Now..."
-            : "Already registered ? Sign In Now..."}
+            ? "New to Netflix? Sign Up Now..."
+            : "Already registered? Sign In Now..."}
         </p>
       </form>
     </div>
@@ -69,3 +111,4 @@ const Login = () => {
 };
 
 export default Login;
+
