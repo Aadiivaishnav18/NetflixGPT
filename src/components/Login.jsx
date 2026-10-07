@@ -1,6 +1,8 @@
 import Header from "./Header";
 import { useRef, useState } from "react";
 import { validationData } from "../utils/validationData";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../utils/firsebase";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -20,7 +22,46 @@ const Login = () => {
     );
 
     setErrorMessage(message);
-  };
+  if(message) return;
+
+  if(!isSignInForm){
+
+    // Sign up Logic 
+createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
+// it will return promise -----------
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+     console.log(user);
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode+ "-" + errorMessage);
+  });
+  }
+
+  else{
+    // Sign in Logic
+    signInWithEmailAndPassword(auth, email.current.value,password.current.value)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    console.log(user);
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+   setErrorMessage(errorCode+ "-" + errorMessage);
+  });
+
+
+  }
+  
+ 
+
+
+  }; 
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
