@@ -3,10 +3,12 @@ import { useRef, useState } from "react";
 import { validationData } from "../utils/validationData";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../utils/firsebase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate()
 
   const name = useRef(null);
   const email = useRef(null);
@@ -33,6 +35,7 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
     // Signed up 
     const user = userCredential.user;
      console.log(user);
+     navigate("/browse");
   })
   .catch((error) => {
     const errorCode = error.code;
@@ -48,6 +51,7 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
     // Signed in 
     const user = userCredential.user;
     console.log(user);
+    navigate("/browse");
   })
   .catch((error) => {
     const errorCode = error.code;
@@ -110,7 +114,7 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
           type="email"
           placeholder="Email Address"
           className="p-3 my-4 bg-gray-700 rounded-lg outline-none w-full"
-        />
+        />  
 
         {/* Password */}
         <input
