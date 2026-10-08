@@ -2,12 +2,14 @@ import { signOut } from "firebase/auth";
 import { auth } from "../utils/firsebase";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const Header = () => {
 
   const [isSignOut, setIsSignOut] = useState(false);
 
   const navigate = useNavigate();
+  const user = useSelector(store => store.user);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -35,12 +37,13 @@ const Header = () => {
       />
 
       {/* Right Side */}
+     {user && (
       <div className="flex items-center gap-4">
 
         <img
           className="w-9 h-9 sm:w-10 sm:h-10 object-cover"
           alt="user icon"
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd1Th5gae2Q5TMYAq3IehJ43kLHoGBI_7f3DcM5D5bBg&s=10"
+          src= {user?.photoURL}
         />
 
         <button
@@ -51,6 +54,7 @@ const Header = () => {
         </button>
 
       </div>
+     )} 
     </div>
   );
 };

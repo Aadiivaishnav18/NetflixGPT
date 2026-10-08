@@ -11,6 +11,8 @@
 - Create SignUp page for user Account 
 - Implement Sign in user Api 
 - Created redux Store with userSlice 
+- Implemented SignOut
+- Update the Profile (solve the error also by using dispatch)
 
 ...
 - Login/Sign Up
