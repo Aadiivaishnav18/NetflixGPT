@@ -3,13 +3,14 @@ import { useRef, useState } from "react";
 import { validationData } from "../utils/validationData";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../utils/firsebase";
-import { useNavigate } from "react-router-dom";
+import { BACK_LOGO , USER_AVTAR} from "../utils/constant";
+
 import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  const navigate = useNavigate()
+
   const dispatch = useDispatch();
 
   const name = useRef(null);
@@ -37,20 +38,20 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
     // Signed up 
     const user = userCredential.user;
       updateProfile(user, {
-  displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/241338462?v=4"
+  displayName: name.current.value, photoURL:USER_AVTAR
 }).then(() => {
     if (user) {
       const {uid, email , displayName,photoURL} = auth.currentUser;
       dispatch(addUser({uid:uid, email:email, displayName: displayName,photoURL: photoURL}))
       // ...
+    
     } else {
       // User is signed out
       dispatch(removeUser())
       // ...
     }
-  // Profile updated!
+      // Profile updated!
   navigate("/browse");
-  // ...
 }).catch((error) => {
   // An error occurred
   setErrorMessage(error.message);
@@ -71,8 +72,6 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
   .then((userCredential) => {
     // Signed in 
     const user = userCredential.user;
-    navigate("/browse")
-    console.log(user);
   
   })
   .catch((error) => {
@@ -90,12 +89,14 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
     setErrorMessage(null);
   };
 
+
+
   return (
     <div className="relative min-h-screen">
       {/* Background Image */}
       <img
         className="absolute inset-0 w-full h-full object-cover"
-        src="https://assets.nflxext.com/ffe/siteui/vlv3/ab1fe332-993a-44d1-b60b-cd4f8d11b96e/web/IN-en-20260928-TRIFECTA-perspective_85aef51c-94d6-41ea-a1ea-1e77199158f1_large.jpg"
+        src={BACK_LOGO}
         alt="background-img"
       />
 
@@ -156,7 +157,7 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
           type="submit"
           className="bg-red-600 hover:bg-red-700 font-bold p-4 my-5 rounded-lg transition w-full"
         >
-          {isSignInForm ? "Sign In" : "Sign Up"}
+          {isSignInForm ? "SignIn" : "SignUp"}
         </button>
 
         {/* Toggle Sign In / Sign Up */}

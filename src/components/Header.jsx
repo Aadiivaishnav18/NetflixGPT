@@ -1,13 +1,16 @@
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../utils/firsebase";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useState,useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {addUser, removeUser} from "../utils/userSlice"
+import { LOGO } from "../utils/constant";
 
 const Header = () => {
 
   const [isSignOut, setIsSignOut] = useState(false);
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector(store => store.user);
 
@@ -16,7 +19,6 @@ const Header = () => {
       .then(() => {
         // Sign-out successful
         setIsSignOut(true);
-        navigate("/");
 
       })
       .catch((error) => {
@@ -26,13 +28,35 @@ const Header = () => {
       });
   };
 
+  //-------------------OnAuthStateChanged(Complete Routing is handle from here now whenever the user SignIn or SignOut)-----------------//
+    useEffect(()=>{
+      
+  // unsubscribe() prevents the Firebase listener from remaining active unnecessarily after the component is no longer needed.//
+ const unsubscribe =  onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const {uid, email , displayName,photoURL} = user;
+    dispatch(addUser({uid:uid, email:email, displayName: displayName,photoURL: photoURL}))
+    // ...
+    navigate("/browse")
+  } else {
+    // User is signed out
+    dispatch(removeUser())
+    // ...
+    navigate("/")
+  }
+});
+
+return () => unsubscribe();
+
+  },[])
+
   return (
     <div className="absolute top-0 left-0 z-10 w-full bg-gradient-to-b from-black to-transparent px-6 py-5 sm:px-10 sm:py-6 flex items-center justify-between">
       
       {/* Netflix Logo */}
       <img
         className="w-28 sm:w-36 md:w-40 lg:w-44 h-auto"
-        src="https://occ.a.nflxso.net/dnmt/api/v6/iL4oJVDYZ8KLSrJ6eG2OwtghbfQ/AAAAAQ4TXm1OaapkwYRGseWYrT2HFpAFV7IX9bgV76BxLOD_049HTkgqZ6zq3enQ0gxU1b-868yGZj1I99Ak9oRykNILYsbpT_0d-be9QKbwkD8OfaEdWL-FHZBiORJ9ppzVCM1-mVn63afS.svg"
+        src={LOGO}
         alt="Netflix Logo"
       />
 
