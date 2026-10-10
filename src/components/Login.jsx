@@ -1,23 +1,30 @@
+
 import Header from "./Header";
 import { useRef, useState } from "react";
 import { validationData } from "../utils/validationData";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { auth } from "../utils/firsebase";
-import { BACK_LOGO , USER_AVTAR} from "../utils/constant";
-
+import { BACK_LOGO, USER_AVTAR } from "../utils/constant";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const name = useRef(null);
   const email = useRef(null);
   const password = useRef(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const message = validationData(
@@ -27,69 +34,68 @@ const Login = () => {
     );
 
     setErrorMessage(message);
-  if(message) return;
 
-  if(!isSignInForm){
+    if (message) return;
 
-    // Sign up Logic 
-createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
-// it will return promise -----------
-  .then((userCredential) => {
-    // Signed up 
-    const user = userCredential.user;
-      updateProfile(user, {
-  displayName: name.current.value, photoURL:USER_AVTAR
-}).then(() => {
-    if (user) {
-      const {uid, email , displayName,photoURL} = auth.currentUser;
-      dispatch(addUser({uid:uid, email:email, displayName: displayName,photoURL: photoURL}))
-      // ...
-    
-    } else {
-      // User is signed out
-      dispatch(removeUser())
-      // ...
+    try {
+      if (!isSignInForm) {
+        // Sign Up Logic
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        );
+
+        const user = userCredential.user;
+
+        await updateProfile(user, {
+          displayName: name.current.value,
+          photoURL: USER_AVTAR,
+        });
+
+        // Updated profile ko Redux mein bhejo
+        const updatedUser = auth.currentUser;
+
+        dispatch(
+          addUser({
+            uid: updatedUser.uid,
+            email: updatedUser.email,
+            displayName: updatedUser.displayName,
+            photoURL: updatedUser.photoURL,
+          })
+        );
+
+        navigate("/browse");
+      } else {
+        // Sign In Logic
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        );
+
+        const user = userCredential.user;
+
+        dispatch(
+          addUser({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          })
+        );
+
+        navigate("/browse");
+      }
+    } catch (error) {
+      setErrorMessage(error.code + " - " + error.message);
     }
-      // Profile updated!
-  navigate("/browse");
-}).catch((error) => {
-  // An error occurred
-  setErrorMessage(error.message);
-  // ...
-});
-     console.log(user);
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    setErrorMessage(errorCode+ "-" + errorMessage);
-  });
-  }
-
-  else{
-    // Sign in Logic
-    signInWithEmailAndPassword(auth, email.current.value,password.current.value)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-  
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-   setErrorMessage(errorCode+ "-" + errorMessage);
-  });
-
-  }
-
-  }; 
+  };
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
     setErrorMessage(null);
   };
-
-
 
   return (
     <div className="relative min-h-screen">
@@ -133,7 +139,7 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
           type="email"
           placeholder="Email Address"
           className="p-3 my-4 bg-gray-700 rounded-lg outline-none w-full"
-        />  
+        />
 
         {/* Password */}
         <input
@@ -175,4 +181,3 @@ createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
 };
 
 export default Login;
-

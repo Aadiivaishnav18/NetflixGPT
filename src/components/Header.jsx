@@ -29,26 +29,32 @@ const Header = () => {
   };
 
   //-------------------OnAuthStateChanged(Complete Routing is handle from here now whenever the user SignIn or SignOut)-----------------//
-    useEffect(()=>{
-      
-  // unsubscribe() prevents the Firebase listener from remaining active unnecessarily after the component is no longer needed.//
- const unsubscribe =  onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const {uid, email , displayName,photoURL} = user;
-    dispatch(addUser({uid:uid, email:email, displayName: displayName,photoURL: photoURL}))
-    // ...
-    navigate("/browse")
-  } else {
-    // User is signed out
-    dispatch(removeUser())
-    // ...
-    navigate("/")
-  }
-});
 
-return () => unsubscribe();
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Firebase se latest profile data reload karo
+      await user.reload();
 
-  },[])
+      const updatedUser = auth.currentUser;
+
+      dispatch(
+        addUser({
+          uid: updatedUser.uid,
+          email: updatedUser.email,
+          displayName: updatedUser.displayName,
+          photoURL: updatedUser.photoURL,
+        })
+      );
+    } else {
+      dispatch(removeUser());
+      navigate("/");
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
 
   return (
     <div className="absolute top-0 left-0 z-10 w-full bg-gradient-to-b from-black to-transparent px-6 py-5 sm:px-10 sm:py-6 flex items-center justify-between">
@@ -79,7 +85,7 @@ return () => unsubscribe();
 
       </div>
      )} 
-    </div>
+         </div>
   );
 };
 
